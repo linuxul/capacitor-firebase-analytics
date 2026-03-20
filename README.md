@@ -17,7 +17,7 @@
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
-## <a id="breaking-changes"> ❗❗ Breaking changes when updating to ✏️v7.0.0✏️❗❗
+## <a id="breaking-changes"> ❗❗ Breaking changes when updating to ✏️v8.0.0✏️❗❗
 
 ✏️✏️ This plugin now supports Capacitor 7 only. For Capacitor 6, 5 and 4 please use version listed below ✏️✏️
 
@@ -25,6 +25,7 @@
 
 | Capacitor version | Plugin version |
 | ----------------- | -------------- |
+| 8.x               | 8.x            |
 | 7.x               | 7.x            |
 | 6.x               | 6.x            |
 | 5.x               | 5.0.1          |
