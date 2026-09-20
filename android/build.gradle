@@ -7,6 +7,8 @@ ext {
 }
 
 buildscript {
+    // Follows the app's kotlin_version so the app, the Capacitor runtime and the plugins share one Kotlin Gradle plugin
+    ext.kotlin_gradle_version = project.hasProperty('kotlin_version') ? rootProject.ext.kotlin_version : '2.2.20'
     repositories {
         google()
         mavenCentral()
@@ -15,12 +17,14 @@ buildscript {
         classpath 'com.github.bjoernq:unmockplugin:0.7.8'
 
         classpath 'com.android.tools.build:gradle:8.13.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_gradle_version"
 
         classpath 'com.google.gms:google-services:4.4.4'
     }
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 apply plugin: 'de.mobilej.unmock'
 unMock {
@@ -32,7 +36,7 @@ android {
     namespace = "com.getcapacitor.community.firebaseanalytics"
     compileSdk = project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 36
     defaultConfig {
-        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
+        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 33
         targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36
         versionCode 1
         versionName "1.0"
@@ -51,6 +55,11 @@ android {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
     }
+}
+
+kotlin {
+    jvmToolchain(21)
+    explicitApi()
 }
 
 repositories {

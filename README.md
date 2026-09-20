@@ -21,6 +21,8 @@
 
 ✏️✏️ This plugin now supports Capacitor 8 only. For Capacitor 7, 6, 5 and 4 please use version listed below ✏️✏️
 
+This version requires the forked Capacitor 8 runtime (Kotlin on Android, Swift on iOS), iOS 17 or later and Android 13 (API 33) or later.
+
 ## Plugin versions
 
 | Capacitor version | Plugin version |

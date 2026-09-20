@@ -24,10 +24,8 @@ jobs:
         run: npm ci
       - name: Build NPM Module
         run: npm run build
-      - name: Install Cocoapods
-        run: cd ios && pod install
       - name: Run iOS Tests
-        run: cd ios && xcodebuild clean test -workspace Plugin.xcworkspace -scheme Plugin -destination "${destination}"
+        run: CAPACITOR_IOS_PATH="$(node -p "require('path').dirname(require.resolve('@capacitor/ios/package.json'))")" xcodebuild clean test -scheme CapacitorCommunityFirebaseAnalytics -destination "${destination}"
         env:
           destination: ${{ matrix.destination }}
 

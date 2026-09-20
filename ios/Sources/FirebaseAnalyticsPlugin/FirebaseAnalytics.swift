@@ -8,16 +8,16 @@ public class FirebaseAnalytics: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "FirebaseAnalytics"
     public let jsName = "FirebaseAnalytics"
     public let pluginMethods: [CAPPluginMethod] = [
-        CAPPluginMethod(name: "setUserId", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "setUserProperty", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "getAppInstanceId", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "setScreenName", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "reset", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "logEvent", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "setCollectionEnabled", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "setSessionTimeoutDuration", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "enable", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "disable", returnType: CAPPluginReturnPromise)
+        CAPPluginMethod(name: "setUserId", returnType: .promise),
+        CAPPluginMethod(name: "setUserProperty", returnType: .promise),
+        CAPPluginMethod(name: "getAppInstanceId", returnType: .promise),
+        CAPPluginMethod(name: "setScreenName", returnType: .promise),
+        CAPPluginMethod(name: "reset", returnType: .promise),
+        CAPPluginMethod(name: "logEvent", returnType: .promise),
+        CAPPluginMethod(name: "setCollectionEnabled", returnType: .promise),
+        CAPPluginMethod(name: "setSessionTimeoutDuration", returnType: .promise),
+        CAPPluginMethod(name: "enable", returnType: .promise),
+        CAPPluginMethod(name: "disable", returnType: .promise)
     ]
 
     public override func load() {

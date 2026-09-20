@@ -1,6 +1,6 @@
 import XCTest
 import Capacitor
-@testable import FBAnalytics
+@testable import FirebaseAnalyticsPlugin
 
 class PluginTests: XCTestCase {
 
