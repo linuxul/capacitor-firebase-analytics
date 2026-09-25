@@ -5,7 +5,9 @@ import android.os.Bundle
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
+import com.getcapacitor.PluginException
 import com.getcapacitor.PluginMethod
+import com.getcapacitor.PluginThread
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.getcapacitor.annotation.Permission
 import com.google.firebase.analytics.FirebaseAnalytics as GoogleFirebaseAnalytics
@@ -37,18 +39,13 @@ public class FirebaseAnalytics : Plugin() {
      */
     @PluginMethod
     public fun setUserId(call: PluginCall) {
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
+
+        if (!call.data.has("userId")) {
+            throw PluginException("userId property is missing")
+        }
+
         try {
-            val analytics = firebaseAnalytics
-            if (analytics == null) {
-                call.reject(MISSING_REF_MSSG)
-                return
-            }
-
-            if (!call.data.has("userId")) {
-                call.reject("userId property is missing")
-                return
-            }
-
             analytics.setUserId(call.getString("userId"))
             call.resolve()
         } catch (ex: Exception) {
@@ -63,29 +60,20 @@ public class FirebaseAnalytics : Plugin() {
      */
     @PluginMethod
     public fun setUserProperty(call: PluginCall) {
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
+
+        if (!call.data.has("name")) {
+            throw PluginException("name property is missing")
+        }
+
+        if (!call.data.has("value")) {
+            throw PluginException("value property is missing")
+        }
+
+        // Firebase requires a name. One that is present but not a string is reported like a missing one.
+        val name = call.getString("name") ?: throw PluginException("name property is missing")
+
         try {
-            val analytics = firebaseAnalytics
-            if (analytics == null) {
-                call.reject(MISSING_REF_MSSG)
-                return
-            }
-
-            if (!call.data.has("name")) {
-                call.reject("name property is missing")
-                return
-            }
-
-            if (!call.data.has("value")) {
-                call.reject("value property is missing")
-                return
-            }
-
-            // Firebase requires a name. One that is present but not a string is reported like a missing one.
-            val name = call.getString("name")
-            if (name == null) {
-                call.reject("name property is missing")
-                return
-            }
             val value = call.getString("value")
 
             analytics.setUserProperty(name, value)
@@ -101,11 +89,7 @@ public class FirebaseAnalytics : Plugin() {
      */
     @PluginMethod
     public fun getAppInstanceId(call: PluginCall) {
-        val analytics = firebaseAnalytics
-        if (analytics == null) {
-            call.reject(MISSING_REF_MSSG)
-            return
-        }
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
         analytics.appInstanceId.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val instanceId = task.result
@@ -127,30 +111,24 @@ public class FirebaseAnalytics : Plugin() {
      * @param call - screenName: the activity to which the screen name and class name apply.
      *               nameOverride: the name of the current screen. Set to null to clear the current screen name.
      */
-    @PluginMethod
+    // Logs the screen_view event on the main thread, as it did from a runOnUiThread block.
+    @PluginMethod(thread = PluginThread.MAIN)
     public fun setScreenName(call: PluginCall) {
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
+
+        if (!call.data.has("screenName")) {
+            throw PluginException("screenName property is missing")
+        }
+
         try {
-            val analytics = firebaseAnalytics
-            if (analytics == null) {
-                call.reject(MISSING_REF_MSSG)
-                return
-            }
-
-            if (!call.data.has("screenName")) {
-                call.reject("screenName property is missing")
-                return
-            }
-
             val screenName = call.getString("screenName")
             val nameOverride = call.getString("nameOverride", null)
 
-            bridge.activity.runOnUiThread {
-                val bundle = Bundle()
-                bundle.putString(GoogleFirebaseAnalytics.Param.SCREEN_NAME, screenName)
-                bundle.putString(GoogleFirebaseAnalytics.Param.SCREEN_CLASS, nameOverride)
-                analytics.logEvent(GoogleFirebaseAnalytics.Event.SCREEN_VIEW, bundle)
-                call.resolve()
-            }
+            val bundle = Bundle()
+            bundle.putString(GoogleFirebaseAnalytics.Param.SCREEN_NAME, screenName)
+            bundle.putString(GoogleFirebaseAnalytics.Param.SCREEN_CLASS, nameOverride)
+            analytics.logEvent(GoogleFirebaseAnalytics.Event.SCREEN_VIEW, bundle)
+            call.resolve()
         } catch (ex: Exception) {
             call.reject(ex.localizedMessage)
         }
@@ -162,13 +140,9 @@ public class FirebaseAnalytics : Plugin() {
      */
     @PluginMethod
     public fun reset(call: PluginCall) {
-        try {
-            val analytics = firebaseAnalytics
-            if (analytics == null) {
-                call.reject(MISSING_REF_MSSG)
-                return
-            }
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
 
+        try {
             analytics.resetAnalyticsData()
             call.resolve()
         } catch (ex: Exception) {
@@ -183,24 +157,16 @@ public class FirebaseAnalytics : Plugin() {
      */
     @PluginMethod
     public fun logEvent(call: PluginCall) {
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
+
+        if (!call.data.has("name")) {
+            throw PluginException("name property is missing")
+        }
+
+        // Firebase requires a name. One that is present but not a string is reported like a missing one.
+        val name = call.getString("name") ?: throw PluginException("name property is missing")
+
         try {
-            val analytics = firebaseAnalytics
-            if (analytics == null) {
-                call.reject(MISSING_REF_MSSG)
-                return
-            }
-
-            if (!call.data.has("name")) {
-                call.reject("name property is missing")
-                return
-            }
-
-            // Firebase requires a name. One that is present but not a string is reported like a missing one.
-            val name = call.getString("name")
-            if (name == null) {
-                call.reject("name property is missing")
-                return
-            }
             val params = call.data.getJSObject("params")
             analytics.logEvent(name, params?.let { convertJsonToBundle(it) })
             call.resolve()
@@ -215,11 +181,7 @@ public class FirebaseAnalytics : Plugin() {
      */
     @PluginMethod
     public fun setCollectionEnabled(call: PluginCall) {
-        val analytics = firebaseAnalytics
-        if (analytics == null) {
-            call.reject(MISSING_REF_MSSG)
-            return
-        }
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
 
         val enabled = call.getBoolean("enabled", false) ?: false
 
@@ -235,11 +197,7 @@ public class FirebaseAnalytics : Plugin() {
     @Deprecated("Use setCollectionEnabled() instead")
     @PluginMethod
     public fun enable(call: PluginCall) {
-        val analytics = firebaseAnalytics
-        if (analytics == null) {
-            call.reject(MISSING_REF_MSSG)
-            return
-        }
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
 
         analytics.setAnalyticsCollectionEnabled(true)
         call.resolve()
@@ -253,11 +211,7 @@ public class FirebaseAnalytics : Plugin() {
     @Deprecated("Use setCollectionEnabled() instead")
     @PluginMethod
     public fun disable(call: PluginCall) {
-        val analytics = firebaseAnalytics
-        if (analytics == null) {
-            call.reject(MISSING_REF_MSSG)
-            return
-        }
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
 
         analytics.setAnalyticsCollectionEnabled(false)
         call.resolve()
@@ -269,11 +223,7 @@ public class FirebaseAnalytics : Plugin() {
      */
     @PluginMethod
     public fun setSessionTimeoutDuration(call: PluginCall) {
-        val analytics = firebaseAnalytics
-        if (analytics == null) {
-            call.reject(MISSING_REF_MSSG)
-            return
-        }
+        val analytics = firebaseAnalytics ?: throw PluginException(MISSING_REF_MSSG)
 
         val duration = call.getInt("duration", 1800) ?: 1800
 
